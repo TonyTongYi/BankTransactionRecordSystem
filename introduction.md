@@ -1,178 +1,151 @@
-先查看项目的源码和说明文件，确认它的功能、类设计和输入输出格式，然后我会整理成一份中文项目说明。
+# 银行交易记录系统项目说明
 
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem)
+## 一、项目简介
 
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/BankTransactionRecordSystem.java)
+这是一个使用 Java 开发的控制台程序，用于记录 5 位客户的银行交易资料。系统在用户输入每条交易信息后，会进行格式校验，校验通过后将数据保存到数组中，最后统一显示全部交易记录。
 
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/sample_input.txt)
+该项目适合用于基础 Java 课程练习，重点体现数组、类与对象、方法封装、循环控制、条件判断以及正则表达式输入校验的使用。
 
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/README.md)
+## 二、项目功能
 
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/BankTransaction.java)
+系统支持以下功能：
 
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/sample_output.txt)
-
-**项目分析**
-
-这是一个基于 Java 控制台的银行交易记录系统，核心目标是录入 5 位客户的交易资料，并在录入完成后统一显示全部记录。项目采用了最基础的 Java 语法和面向对象写法，适合作为入门级课程作业或小组练习项目。
-
-从源码来看，项目把“单条交易记录”和“系统主流程”分开实现：一部分负责保存一条交易数据，另一部分负责输入、校验、存储和输出。
-
-**项目功能**
-
-1. 录入 5 位客户的交易信息。
-2. 每条信息包含 4 个字段：
-   - 客户编号 Customer ID
-   - 账户号码 Account Number
-   - 交易金额 Transaction Amount
-   - 交易类型 Transaction Type
-3. 对输入内容进行基础校验：
-   - 客户编号不能为空
-   - 账户号码不能为空
-   - 金额必须是数字
-   - 金额必须大于 0
-   - 交易类型只能从 1 到 4 中选择
-4. 将每位客户的交易资料保存到对象数组中。
-5. 最后遍历数组，输出全部交易记录。
-6. 输出总记录数，固定为 5。
-
-**实现方法**
-
-这个项目采用的是“数组 + 类对象 + 方法封装”的实现思路。
-
-1. 数据建模
-   BankTransaction.java 定义了一个交易记录类，用来保存一条客户交易数据。
-   
-   它包含 4 个私有属性：
-   - customerId
-   - accountNumber
-   - transactionAmount
-   - transactionType
-
-   同时提供：
-   - 构造方法：在创建对象时一次性传入完整数据
-   - displayTransaction(int recordNumber)：用于输出当前记录
-
-2. 主流程控制
-   BankTransactionRecordSystem.java 是程序入口，包含 main 方法，负责整个系统流程：
-   - 创建 Scanner 接收用户输入
-   - 创建长度为 5 的 BankTransaction 数组
-   - 循环 5 次读取客户数据
-   - 调用不同方法完成输入校验
-   - 创建对象并存入数组
-   - 最后统一显示所有记录
-
-3. 输入校验方法
-   主程序中把输入逻辑拆成几个独立方法，结构比较清晰：
-
-   - printTitle()
-     用于打印系统标题
-
-   - readRequiredText(Scanner scanner, String prompt)
-     用于读取必填文本字段，例如客户编号和账户号码  
-     实现方式：使用 do...while 循环，如果用户输入为空字符串则要求重新输入
-
-   - readPositiveAmount(Scanner scanner)
-     用于读取合法金额  
-     实现方式：
-     - 使用 hasNextDouble() 判断是否为数字
-     - 若不是数字，提示错误并清除输入
-     - 若金额小于等于 0，提示重新输入
-     - 只有金额大于 0 才通过校验
-
-   - readTransactionType(Scanner scanner)
-     用于读取交易类型  
-     实现方式：
-     - 显示 1 到 4 的菜单
-     - 使用 hasNextInt() 判断是否输入整数
-     - 再用 switch 进行分支判断
-     - 将数字映射为字符串：
-       - 1 -> Deposit
-       - 2 -> Withdrawal
-       - 3 -> Transfer
-       - 4 -> Payment
-
-   - displayAllTransactions(BankTransaction[] transactions)
-     用于遍历数组并显示所有记录
-
-4. 存储方式
-   程序使用对象数组保存交易记录：
-   ```java
-   BankTransaction[] transactions = new BankTransaction[5];
-   ```
-   每次输入完成后，就创建一个对象并放进数组对应位置。这样既满足“固定保存 5 条数据”的要求，也体现了类和对象的使用。
-
-**项目结构**
-
-项目结构非常简单：
-
-- BankTransaction.java
-  交易记录类，负责封装一条交易数据和显示逻辑。
-
-- BankTransactionRecordSystem.java
-  主程序类，负责输入、校验、对象创建、数组存储和结果显示。
-
-- README.md
-  项目说明文档，包含任务要求、运行方法、结构说明和检查点。
-
-- sample_input.txt
-  示例输入文件，可用于测试程序。
-
-- sample_output.txt
-  使用示例输入运行后的参考输出。
-
-**程序执行流程**
-
-程序运行时的大致流程如下：
-
-1. 显示系统标题
-2. 循环 5 次录入客户交易信息
-3. 每次录入时依次输入：
+1. 录入 5 位客户的交易记录。
+2. 每条记录包含 4 个字段：
    - Customer ID
    - Account Number
    - Transaction Amount
    - Transaction Type
-4. 输入合法后创建 BankTransaction 对象
-5. 存入 transactions 数组
-6. 所有数据录入完成后，统一输出全部记录
-7. 显示总记录数
+3. 对用户输入进行格式校验。
+4. 将合法数据保存到对象数组中。
+5. 显示全部交易记录。
+6. 显示总记录数量。
 
-**项目特点**
+## 三、输入校验规则
 
-这个项目的特点是“简单、清晰、符合基础 Java 教学要求”：
+系统使用正则表达式对输入内容进行检查，规则如下：
 
-- 使用类来表示现实中的交易记录
-- 使用数组来保存多个对象
-- 使用方法拆分功能，避免 main 方法过长
-- 使用循环和条件判断处理重复输入与校验
-- 没有使用超出基础课程范围的高级特性，比如集合、数据库、继承、多态等
+1. Customer ID：必须为 1 个英文字母加 3 位数字，例如 `C001`。
+2. Account Number：必须为 8 到 18 位数字，允许使用空格或连字符分隔，例如 `0012-345-678`、`1234 5678 9012`。系统保存时会自动移除分隔符。
+3. Transaction Amount：必须是大于 0 的数字，且最多保留 2 位小数，例如 `500`、`500.75`。
+4. Transaction Type：只能输入 `1`、`2`、`3` 或 `4`。
 
-**运行说明**
+如果输入不符合规则，系统会提示错误并要求重新输入，直到数据合法为止。
 
-可以按 README 中的方法运行：
+## 四、实现方法
+
+本项目采用“类封装单条记录，主程序负责流程控制”的方式实现。
+
+### 1. 交易记录类
+
+[BankTransaction.java](BankTransaction.java) 用于定义单条交易记录对象，包含以下成员：
+
+- `customerId`：客户编号
+- `accountNumber`：账户号码
+- `transactionAmount`：交易金额
+- `transactionType`：交易类型
+
+主要方法：
+
+1. 构造方法 `BankTransaction(...)`
+   用于在创建对象时接收并保存完整的交易信息。
+2. `displayTransaction(int recordNumber)`
+   用于格式化输出一条交易记录。
+
+### 2. 主程序类
+
+[BankTransactionRecordSystem.java](BankTransactionRecordSystem.java) 是系统入口，负责整体业务流程。
+
+主要实现步骤：
+
+1. 创建 `Scanner` 对象接收输入。
+2. 创建长度为 5 的 `BankTransaction[]` 数组。
+3. 使用 `for` 循环录入 5 条交易记录。
+4. 调用不同方法分别读取客户编号、账号、金额和交易类型。
+5. 对每项输入进行正则校验。
+6. 创建 `BankTransaction` 对象并保存到数组中。
+7. 最后遍历数组输出所有记录。
+
+### 3. 主要方法说明
+
+1. `printTitle()`
+   显示系统标题。
+
+2. `readValidatedText(Scanner scanner, String prompt, String pattern, String errorMessage)`
+   用于读取并验证文本输入，例如客户编号和账户号码。
+
+3. `readPositiveAmount(Scanner scanner)`
+   用于读取交易金额，并利用正则表达式检查格式，再判断金额是否大于 0。
+
+4. `readTransactionType(Scanner scanner)`
+   用于读取交易类型菜单选项，并将数字转换为文字类型。
+
+5. `displayAllTransactions(BankTransaction[] transactions)`
+   用于遍历数组并显示全部交易记录。
+
+## 五、项目结构
+
+项目目录如下：
+
+- [BankTransaction.java](BankTransaction.java)
+  交易记录类。
+
+- [BankTransactionRecordSystem.java](BankTransactionRecordSystem.java)
+  主程序类。
+
+- [README.md](README.md)
+  项目说明文件。
+
+- [sample_input.txt](sample_input.txt)
+  示例输入文件。
+
+- [sample_output.txt](sample_output.txt)
+  示例输出文件。
+
+## 六、程序执行流程
+
+1. 显示系统标题。
+2. 依次输入 5 位客户的交易资料。
+3. 每输入一项数据，系统立即检查格式是否合法。
+4. 合法数据保存为一个 `BankTransaction` 对象。
+5. 5 条记录全部录入后，系统统一显示所有内容。
+6. 输出总记录数。
+
+## 七、项目特点
+
+本项目具有以下特点：
+
+1. 结构简单清晰，适合教学和展示。
+2. 使用数组保存固定数量的数据。
+3. 使用类和对象表示真实业务数据。
+4. 使用方法拆分逻辑，便于理解和维护。
+5. 使用正则表达式增强输入校验能力。
+6. 不使用集合框架、数据库、继承、多态等高级特性，符合基础 Java 课程要求。
+
+## 八、运行方式
+
+在项目目录下运行：
 
 ```bash
 javac BankTransaction.java BankTransactionRecordSystem.java
 java BankTransactionRecordSystem
 ```
 
-如果要直接测试示例输入：
+如果使用示例输入文件测试：
 
 ```bash
 java BankTransactionRecordSystem < sample_input.txt
 ```
 
-**总结**
+## 九、总结
 
-这是一个标准的 Java 控制台小项目，主要用于练习以下知识点：
+该项目完整展示了一个基础 Java 控制台系统从数据输入、格式校验、对象创建、数组存储到结果输出的全过程。通过这个项目，可以练习以下知识点：
 
-- 类与对象
-- 构造方法
-- 数组
-- 方法封装
-- Scanner 输入
-- if/else 与 switch
-- 循环
-- 基础输入校验
-
-如果你需要，我下一步可以继续帮你整理成一份更正式的“项目报告版说明”，或者直接画出这个项目的流程图/类图。
+1. 类与对象
+2. 构造方法
+3. 数组
+4. 循环结构
+5. 条件判断
+6. 方法封装
+7. Scanner 输入处理
+8. 正则表达式校验
