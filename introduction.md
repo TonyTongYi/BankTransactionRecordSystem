@@ -1,16 +1,3 @@
-先查看项目的源码和说明文件，确认它的功能、类设计和输入输出格式，然后我会整理成一份中文项目说明。
-
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem)
-
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/BankTransactionRecordSystem.java)
-
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/sample_input.txt)
-
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/README.md)
-
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/BankTransaction.java)
-
-Read [](file:///c%3A/Users/Administrator/Downloads/BankTransactionRecordSystem/sample_output.txt)
 
 **项目分析**
 
