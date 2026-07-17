@@ -12,6 +12,10 @@ import java.util.Scanner;
  */
 public class BankTransactionRecordSystem {
     private static final int CUSTOMER_COUNT = 5;
+    private static final String CUSTOMER_ID_PATTERN = "^[A-Za-z]\\d{3}$";
+    private static final String ACCOUNT_NUMBER_PATTERN = "^\\d(?:[ -]?\\d){7,17}$";
+    private static final String AMOUNT_PATTERN = "^(0|[1-9]\\d*)(\\.\\d{1,2})?$";
+    private static final String TRANSACTION_TYPE_PATTERN = "^[1-4]$";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -25,20 +29,48 @@ public class BankTransactionRecordSystem {
             System.out.println("Enter transaction information for customer " + (i + 1));
             System.out.println("----------------------------------------");
 
-            String customerId = readRequiredText(scanner, "Customer ID: ");
-            String accountNumber = readRequiredText(scanner, "Account Number: ");
-            double transactionAmount = readPositiveAmount(scanner);
-            String transactionType = readTransactionType(scanner);
+            String customerId = readUniqueCustomerId(scanner, transactions, i);
+            String accountNumber = readAccountNumber(scanner);
+            String transactionType = readTransactionType(scanner, i > 0);
+            double availableBalance = BankTransaction.getDefaultAccountBalance();
+            double transactionAmount = readTransactionAmount(scanner, transactionType, availableBalance);
+            String transferTargetAccount = null;
+
+            if (transactionType.equals("Transfer")) {
+                transferTargetAccount = readTransferTargetAccount(scanner, transactions, i, accountNumber);
+            }
 
             // 创建对象，并把对象存入数组。
             transactions[i] = new BankTransaction(
                     customerId,
                     accountNumber,
                     transactionAmount,
-                    transactionType
+                    transactionType,
+                    transferTargetAccount
             );
 
+            if (transferTargetAccount != null) {
+                BankTransaction recipient = findTransactionByAccountNumber(
+                        transferTargetAccount,
+                        transactions,
+                        i
+                );
+                recipient.addToBalance(transactionAmount);
+            }
+
             System.out.println("Transaction record saved successfully.");
+
+            if (transferTargetAccount != null) {
+                BankTransaction recipient = findTransactionByAccountNumber(
+                        transferTargetAccount,
+                        transactions,
+                        i
+                );
+                System.out.printf("Sender account balance   : %.2f%n", transactions[i].getAccountBalance());
+                System.out.printf("Recipient account balance: %.2f%n", recipient.getAccountBalance());
+            } else {
+                System.out.printf("Current account balance: %.2f%n", transactions[i].getAccountBalance());
+            }
         }
 
         // 显示数组中的全部交易记录。
@@ -59,96 +91,188 @@ public class BankTransactionRecordSystem {
     /**
      * 读取不能为空的文字，例如客户编号和账户号码。
      */
-    public static String readRequiredText(Scanner scanner, String prompt) {
+    public static String readValidatedText(Scanner scanner, String prompt,
+                                           String pattern, String errorMessage) {
         String value;
 
-        do {
+        while (true) {
             System.out.print(prompt);
-            value = scanner.nextLine();
+            value = scanner.nextLine().trim();
 
             if (value.length() == 0) {
                 System.out.println("Input cannot be empty. Please enter again.");
+            } else if (!value.matches(pattern)) {
+                System.out.println(errorMessage);
+            } else {
+                return value;
             }
-        } while (value.length() == 0);
+        }
+    }
 
-        return value;
+    public static String readUniqueCustomerId(Scanner scanner,
+                                              BankTransaction[] transactions,
+                                              int currentIndex) {
+        while (true) {
+            String customerId = readValidatedText(
+                    scanner,
+                    "Customer ID: ",
+                    CUSTOMER_ID_PATTERN,
+                    "Invalid Customer ID. Use 1 letter followed by 3 digits, for example: C001."
+            );
+
+            if (isDuplicateCustomerId(customerId, transactions, currentIndex)) {
+                System.out.println("Duplicate Customer ID. Please enter a different ID.");
+            } else {
+                return customerId;
+            }
+        }
+    }
+
+    public static boolean isDuplicateCustomerId(String customerId,
+                                                BankTransaction[] transactions,
+                                                int currentIndex) {
+        for (int i = 0; i < currentIndex; i++) {
+            if (transactions[i] != null && transactions[i].getCustomerId().equalsIgnoreCase(customerId)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 读取更接近真实场景的账户号码。
+     * 允许输入 8-18 位数字，中间可包含空格或连字符，保存时会移除分隔符。
+     */
+    public static String readAccountNumber(Scanner scanner) {
+        return readAccountNumber(scanner, "Account Number: ");
+    }
+
+    public static String readAccountNumber(Scanner scanner, String prompt) {
+        String accountNumber = readValidatedText(
+                scanner,
+                prompt,
+                ACCOUNT_NUMBER_PATTERN,
+                "Invalid Account Number. Use 8-18 digits, and you may separate digits with spaces or hyphens."
+        );
+
+        return accountNumber.replaceAll("[ -]", "");
     }
 
     /**
      * 读取大于 0 的交易金额，并处理非数字输入。
      */
     public static double readPositiveAmount(Scanner scanner) {
-        double amount = 0;
-        boolean validAmount = false;
-
-        while (!validAmount) {
+        while (true) {
             System.out.print("Transaction Amount: ");
+            String input = scanner.nextLine().trim();
 
-            if (scanner.hasNextDouble()) {
-                amount = scanner.nextDouble();
-                scanner.nextLine(); // 清除输入行末尾的换行符
+            if (!input.matches(AMOUNT_PATTERN)) {
+                System.out.println("Invalid amount. Please enter a positive number with up to 2 decimal places.");
+                continue;
+            }
 
-                if (amount > 0) {
-                    validAmount = true;
-                } else {
-                    System.out.println("Amount must be greater than 0.");
-                }
+            double amount = Double.parseDouble(input);
+
+            if (amount > 0) {
+                return amount;
             } else {
-                System.out.println("Invalid amount. Please enter a number.");
-                scanner.nextLine(); // 丢弃错误输入
+                System.out.println("Amount must be greater than 0.");
             }
         }
+    }
 
-        return amount;
+    public static double readTransactionAmount(Scanner scanner,
+                                               String transactionType,
+                                               double availableBalance) {
+        while (true) {
+            double amount = readPositiveAmount(scanner);
+
+            if (requiresSufficientBalance(transactionType) && amount > availableBalance) {
+                System.out.printf(
+                        "Insufficient balance. Available balance is %.2f. Please enter a smaller amount.%n",
+                        availableBalance
+                );
+            } else {
+                return amount;
+            }
+        }
+    }
+
+    public static boolean requiresSufficientBalance(String transactionType) {
+        return transactionType.equals("Withdrawal")
+                || transactionType.equals("Transfer")
+                || transactionType.equals("Payment");
     }
 
     /**
      * 通过菜单和 switch 读取交易类型。
      */
-    public static String readTransactionType(Scanner scanner) {
-        int choice = 0;
-        String transactionType = "";
-        boolean validChoice = false;
-
-        while (!validChoice) {
+    public static String readTransactionType(Scanner scanner, boolean transferAvailable) {
+        while (true) {
             System.out.println("Transaction Type:");
             System.out.println("1. Deposit");
             System.out.println("2. Withdrawal");
             System.out.println("3. Transfer");
             System.out.println("4. Payment");
             System.out.print("Choose 1-4: ");
+            String input = scanner.nextLine().trim();
 
-            if (scanner.hasNextInt()) {
-                choice = scanner.nextInt();
-                scanner.nextLine(); // 清除输入行末尾的换行符
-
-                switch (choice) {
-                    case 1:
-                        transactionType = "Deposit";
-                        validChoice = true;
-                        break;
-                    case 2:
-                        transactionType = "Withdrawal";
-                        validChoice = true;
-                        break;
-                    case 3:
-                        transactionType = "Transfer";
-                        validChoice = true;
-                        break;
-                    case 4:
-                        transactionType = "Payment";
-                        validChoice = true;
-                        break;
-                    default:
-                        System.out.println("Invalid choice. Please choose from 1 to 4.");
-                }
-            } else {
+            if (!input.matches(TRANSACTION_TYPE_PATTERN)) {
                 System.out.println("Invalid choice. Please enter an integer from 1 to 4.");
-                scanner.nextLine(); // 丢弃错误输入
+                continue;
+            }
+
+            switch (input) {
+                case "1":
+                    return "Deposit";
+                case "2":
+                    return "Withdrawal";
+                case "3":
+                    if (!transferAvailable) {
+                        System.out.println("Transfer requires another existing account. Please choose a different transaction type.");
+                        break;
+                    }
+                    return "Transfer";
+                default:
+                    return "Payment";
+            }
+        }
+    }
+
+    public static String readTransferTargetAccount(Scanner scanner,
+                                                   BankTransaction[] transactions,
+                                                   int currentIndex,
+                                                   String senderAccountNumber) {
+        while (true) {
+            String targetAccount = readAccountNumber(scanner, "Transfer To Account: ");
+
+            if (targetAccount.equals(senderAccountNumber)) {
+                System.out.println("Transfer account must be different from the sender account.");
+            } else if (!accountExists(targetAccount, transactions, currentIndex)) {
+                System.out.println("Target account not found. Please enter an existing account number.");
+            } else {
+                return targetAccount;
+            }
+        }
+    }
+
+    public static boolean accountExists(String accountNumber,
+                                        BankTransaction[] transactions,
+                                        int currentIndex) {
+        return findTransactionByAccountNumber(accountNumber, transactions, currentIndex) != null;
+    }
+
+    public static BankTransaction findTransactionByAccountNumber(String accountNumber,
+                                                                 BankTransaction[] transactions,
+                                                                 int currentIndex) {
+        for (int i = 0; i < currentIndex; i++) {
+            if (transactions[i] != null && transactions[i].getAccountNumber().equals(accountNumber)) {
+                return transactions[i];
             }
         }
 
-        return transactionType;
+        return null;
     }
 
     /**
