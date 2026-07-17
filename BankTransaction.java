@@ -1,42 +1,40 @@
 /**
  * 银行交易记录类。
  * 每个对象保存一位客户的一条交易资料。
+ * 客户等级相关的余额与透支规则通过 Customer 及其子类的多态实现，
+ * 本类不需要因为新增客户类型而修改。
  */
 public class BankTransaction {
-    private static final double DEFAULT_ACCOUNT_BALANCE = 99999.00;
-
-    private String customerId;
+    private Customer customer;
     private String accountNumber;
     private double transactionAmount;
-    private String transactionType;
+    private TransactionType transactionType;
     private String transferTargetAccount;
-    private double accountBalance;
 
     /**
      * 构造方法：创建一条完整的银行交易记录。
      */
-    public BankTransaction(String customerId, String accountNumber,
-                           double transactionAmount, String transactionType,
+    public BankTransaction(Customer customer, String accountNumber,
+                           double transactionAmount, TransactionType transactionType,
                            String transferTargetAccount) {
-        this.customerId = customerId;
+        this.customer = customer;
         this.accountNumber = accountNumber;
         this.transactionAmount = transactionAmount;
         this.transactionType = transactionType;
         this.transferTargetAccount = transferTargetAccount;
-        this.accountBalance = DEFAULT_ACCOUNT_BALANCE;
         applyTransaction();
     }
 
     public String getCustomerId() {
-        return customerId;
+        return customer.getCustomerId();
     }
 
     public double getAccountBalance() {
-        return accountBalance;
+        return customer.getAccountBalance();
     }
 
-    public static double getDefaultAccountBalance() {
-        return DEFAULT_ACCOUNT_BALANCE;
+    public String getCustomerType() {
+        return customer.getCustomerType();
     }
 
     public String getAccountNumber() {
@@ -44,18 +42,18 @@ public class BankTransaction {
     }
 
     public void addToBalance(double amount) {
-        accountBalance += amount;
+        customer.deposit(amount);
     }
 
     private void applyTransaction() {
         switch (transactionType) {
-            case "Deposit":
-                accountBalance += transactionAmount;
+            case DEPOSIT:
+                customer.deposit(transactionAmount);
                 break;
-            case "Withdrawal":
-            case "Transfer":
-            case "Payment":
-                accountBalance -= transactionAmount;
+            case WITHDRAWAL:
+            case TRANSFER:
+            case PAYMENT:
+                customer.withdraw(transactionAmount);
                 break;
             default:
                 break;
@@ -68,13 +66,15 @@ public class BankTransaction {
     public void displayTransaction(int recordNumber) {
         System.out.println("----------------------------------------");
         System.out.println("Transaction Record No. : " + recordNumber);
-        System.out.println("Customer ID           : " + customerId);
+        System.out.println("Customer ID           : " + customer.getCustomerId());
+        System.out.println("Customer Type         : " + customer.getCustomerType());
         System.out.println("Account Number        : " + accountNumber);
         System.out.printf("Transaction Amount    : %.2f%n", transactionAmount);
         System.out.println("Transaction Type      : " + transactionType);
         if (transferTargetAccount != null) {
             System.out.println("Transfer To Account   : " + transferTargetAccount);
         }
-        System.out.printf("Account Balance       : %.2f%n", accountBalance);
+        System.out.printf("Account Balance       : %.2f%n", customer.getAccountBalance());
     }
 }
+

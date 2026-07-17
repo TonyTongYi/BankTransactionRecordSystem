@@ -5,48 +5,74 @@
 
 Enter transaction information for customer 1
 ----------------------------------------
-Customer ID: Account Number: Transaction Amount: Transaction Type:
+Customer ID: Customer Type:
+1. Standard
+2. Premium
+3. Corporate
+Choose 1-3: Account Number: Transaction Type:
 1. Deposit
 2. Withdrawal
 3. Transfer
 4. Payment
-Choose 1-4: Transaction record saved successfully.
+Choose 1-4: Transaction Amount: Transaction record saved successfully.
+Current account balance: 101499.50
 
 Enter transaction information for customer 2
 ----------------------------------------
-Customer ID: Account Number: Transaction Amount: Transaction Type:
+Customer ID: Customer Type:
+1. Standard
+2. Premium
+3. Corporate
+Choose 1-3: Account Number: Transaction Type:
 1. Deposit
 2. Withdrawal
 3. Transfer
 4. Payment
-Choose 1-4: Transaction record saved successfully.
+Choose 1-4: Transaction Amount: Transaction record saved successfully.
+Current account balance: 199699.00
 
 Enter transaction information for customer 3
 ----------------------------------------
-Customer ID: Account Number: Transaction Amount: Transaction Type:
+Customer ID: Customer Type:
+1. Standard
+2. Premium
+3. Corporate
+Choose 1-3: Account Number: Transaction Type:
 1. Deposit
 2. Withdrawal
 3. Transfer
 4. Payment
-Choose 1-4: Transaction record saved successfully.
+Choose 1-4: Transaction Amount: Transfer To Account: Transaction record saved successfully.
+Sender account balance   : 999198.25
+Recipient account balance: 102300.25
 
 Enter transaction information for customer 4
 ----------------------------------------
-Customer ID: Account Number: Transaction Amount: Transaction Type:
+Customer ID: Customer Type:
+1. Standard
+2. Premium
+3. Corporate
+Choose 1-3: Account Number: Transaction Type:
 1. Deposit
 2. Withdrawal
 3. Transfer
 4. Payment
-Choose 1-4: Transaction record saved successfully.
+Choose 1-4: Transaction Amount: Transaction record saved successfully.
+Current account balance: 99879.00
 
 Enter transaction information for customer 5
 ----------------------------------------
-Customer ID: Account Number: Transaction Amount: Transaction Type:
+Customer ID: Customer Type:
+1. Standard
+2. Premium
+3. Corporate
+Choose 1-3: Account Number: Transaction Type:
 1. Deposit
 2. Withdrawal
 3. Transfer
 4. Payment
-Choose 1-4: Transaction record saved successfully.
+Choose 1-4: Transaction Amount: Transaction record saved successfully.
+Current account balance: 202499.00
 
 ========================================
  All Bank Transaction Records
@@ -54,32 +80,43 @@ Choose 1-4: Transaction record saved successfully.
 ----------------------------------------
 Transaction Record No. : 1
 Customer ID           : C001
+Customer Type         : Standard
 Account Number        : 0012345678
 Transaction Amount    : 1500.50
 Transaction Type      : Deposit
+Account Balance       : 102300.25
 ----------------------------------------
 Transaction Record No. : 2
 Customer ID           : C002
+Customer Type         : Premium
 Account Number        : 0012345679
 Transaction Amount    : 300.00
 Transaction Type      : Withdrawal
+Account Balance       : 199699.00
 ----------------------------------------
 Transaction Record No. : 3
 Customer ID           : C003
+Customer Type         : Corporate
 Account Number        : 0012345680
 Transaction Amount    : 800.75
 Transaction Type      : Transfer
+Transfer To Account   : 0012345678
+Account Balance       : 999198.25
 ----------------------------------------
 Transaction Record No. : 4
 Customer ID           : C004
+Customer Type         : Standard
 Account Number        : 0012345681
 Transaction Amount    : 120.00
 Transaction Type      : Payment
+Account Balance       : 99879.00
 ----------------------------------------
 Transaction Record No. : 5
 Customer ID           : C005
+Customer Type         : Premium
 Account Number        : 0012345682
 Transaction Amount    : 2500.00
 Transaction Type      : Deposit
+Account Balance       : 202499.00
 ----------------------------------------
 Total records: 5
