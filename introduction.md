@@ -25,10 +25,12 @@
 
 系统使用正则表达式对输入内容进行检查，规则如下：
 
-1. Customer ID：必须为 1 个英文字母加 3 位数字，例如 `C001`。
+1. Customer ID：必须为 1 个英文字母加 3 位数字，例如 `C001`，并且不能与之前录入的编号重复。
 2. Account Number：必须为 8 到 18 位数字，允许使用空格或连字符分隔，例如 `0012-345-678`、`1234 5678 9012`。系统保存时会自动移除分隔符。
 3. Transaction Amount：必须是大于 0 的数字，且最多保留 2 位小数，例如 `500`、`500.75`。
 4. Transaction Type：只能输入 `1`、`2`、`3` 或 `4`。
+5. Transfer：转账时必须输入一个系统里已经存在的其他账户号码，且不能与当前账户相同。
+6. Withdrawal、Payment 和 Transfer 的金额不能超过当前账户可用余额，否则系统会提示重新输入。
 
 如果输入不符合规则，系统会提示错误并要求重新输入，直到数据合法为止。
 
@@ -48,9 +50,11 @@
 主要方法：
 
 1. 构造方法 `BankTransaction(...)`
-   用于在创建对象时接收并保存完整的交易信息。
-2. `displayTransaction(int recordNumber)`
-   用于格式化输出一条交易记录。
+   用于在创建对象时接收并保存完整的交易信息，并以 `99999.00` 作为初始余额计算交易后的账户余额。
+2. `addToBalance(double amount)`
+   用于在转账成功后给收款账户增加余额。
+3. `displayTransaction(int recordNumber)`
+   用于格式化输出一条交易记录，包括转账目标账户和交易后的账户余额。
 
 ### 2. 主程序类
 
@@ -62,9 +66,12 @@
 2. 创建长度为 5 的 `BankTransaction[]` 数组。
 3. 使用 `for` 循环录入 5 条交易记录。
 4. 调用不同方法分别读取客户编号、账号、金额和交易类型。
-5. 对每项输入进行正则校验。
-6. 创建 `BankTransaction` 对象并保存到数组中。
-7. 最后遍历数组输出所有记录。
+5. 对每项输入进行正则校验，并检查客户编号是否重复。
+6. 根据交易类型检查交易金额是否超过当前可用余额。
+7. 如果交易类型是 `Transfer`，则继续输入收款账户号码。
+8. 创建 `BankTransaction` 对象并保存到数组中。
+9. 如果是转账，系统同时更新收款账户余额。
+10. 最后遍历数组输出所有记录。
 
 ### 3. 主要方法说明
 
@@ -74,13 +81,25 @@
 2. `readValidatedText(Scanner scanner, String prompt, String pattern, String errorMessage)`
    用于读取并验证文本输入，例如客户编号和账户号码。
 
-3. `readPositiveAmount(Scanner scanner)`
+3. `readUniqueCustomerId(Scanner scanner, BankTransaction[] transactions, int currentIndex)`
+   用于读取客户编号，并检查该编号是否已经存在。
+
+4. `readAccountNumber(Scanner scanner)`
+   用于读取更接近真实场景的账户号码，并在保存前去除空格和连字符。
+
+5. `readTransferTargetAccount(Scanner scanner, BankTransaction[] transactions, int currentIndex, String senderAccountNumber)`
+   用于在转账时读取收款账户，并检查该账户是否已存在且不同于当前账户。
+
+6. `readPositiveAmount(Scanner scanner)`
    用于读取交易金额，并利用正则表达式检查格式，再判断金额是否大于 0。
 
-4. `readTransactionType(Scanner scanner)`
-   用于读取交易类型菜单选项，并将数字转换为文字类型。
+7. `readTransactionAmount(Scanner scanner, String transactionType, double availableBalance)`
+   用于在金额格式合法后，继续检查是否超过当前可用余额。
 
-5. `displayAllTransactions(BankTransaction[] transactions)`
+8. `readTransactionType(Scanner scanner, boolean transferAvailable)`
+   用于读取交易类型菜单选项，并将数字转换为文字类型；如果还没有其他账户，则不允许选择转账。
+
+9. `displayAllTransactions(BankTransaction[] transactions)`
    用于遍历数组并显示全部交易记录。
 
 ## 五、项目结构
@@ -107,9 +126,14 @@
 1. 显示系统标题。
 2. 依次输入 5 位客户的交易资料。
 3. 每输入一项数据，系统立即检查格式是否合法。
-4. 合法数据保存为一个 `BankTransaction` 对象。
-5. 5 条记录全部录入后，系统统一显示所有内容。
-6. 输出总记录数。
+4. 在客户编号合法后，系统继续检查是否与已有编号重复。
+5. 系统根据交易类型检查金额是否超过当前可用余额。
+6. 如果是转账，系统要求输入收款账户，并检查该账户是否已存在。
+7. 合法数据保存为一个 `BankTransaction` 对象，并根据交易类型更新余额。
+8. 如果是转账，系统会同时更新收款账户余额。
+9. 每条记录保存成功后，立即显示当前余额；转账时显示双方余额。
+10. 5 条记录全部录入后，系统统一显示所有内容。
+11. 输出总记录数。
 
 ## 七、项目特点
 
